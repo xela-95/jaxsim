@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: >-
+  JaxSim: A Differentiable Physics Engine and Multibody
+  Dynamics Library for Control and Robot Learning
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Diego
+    family-names: Ferigo
+    email: diego.ferigo@iit.it
+    affiliation: Istituto Italiano di Tecnologia
+  - given-names: Filippo Luca
+    family-names: Ferretti
+    email: filippo.ferretti@iit.it
+    affiliation: Istituto Italiano di Tecnologia
+  - given-names: Silvio
+    family-names: Traversaro
+    email: silvio.traversaro@iit.it
+    affiliation: Istituto Italiano di Tecnologia
+  - given-names: Daniele
+    family-names: Pucci
+    email: daniele.pucci@iit.it
+    affiliation: Istituto Italiano di Tecnologia
+repository-code: 'https://github.com/ami-iit/jaxsim'
+license: BSD-3-Clause
+version: 0.2.0
+date-released: '2024-04-03'
