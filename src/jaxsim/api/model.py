@@ -18,6 +18,7 @@ import jaxsim.typing as jtp
 from jaxsim.utils import HashlessObject, JaxsimDataclass, Mutability
 
 from .common import VelRepr
+from .soft_contacts import SoftContacts
 
 
 @jax_dataclasses.pytree_dataclass
@@ -144,6 +145,9 @@ class JaxSimModel(JaxsimDataclass):
         # Set the model name (if not provided, use the one from the model description)
         model_name = model_name if model_name is not None else model_description.name
 
+        # Set the terrain (if not provided, use the default flat terrain)
+        terrain = terrain or JaxSimModel.__dataclass_fields__["terrain"].default
+
         # Build the model
         model = JaxSimModel(
             model_name=model_name,
@@ -151,9 +155,8 @@ class JaxSimModel(JaxsimDataclass):
             kin_dyn_parameters=js.kin_dyn_parameters.KynDynParameters.build(
                 model_description=model_description
             ),
-            terrain=terrain or JaxSimModel.__dataclass_fields__["terrain"].default,
-            contact_model=contact_model
-            or JaxSimModel.__dataclass_fields__["contact_model"].default,
+            terrain=terrain,
+            contact_model=contact_model or SoftContacts(terrain=terrain),
         )
 
         return model
