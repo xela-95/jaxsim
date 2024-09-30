@@ -227,3 +227,4 @@ default = { solve-group = "cpugroup" }
 gpu = { features = ["gpu"], solve-group = "gpugroup" }
 test-cpu = { features = ["test"], solve-group = "cpugroup" }
 test-gpu = { features = ["test", "gpu"], solve-group = "gpugroup" }
+all = { features = ["all"], solve-group = "cpugroup" }
