@@ -77,12 +77,14 @@ def extract_model_data(
     # Log model name.
     logging.debug(msg=f"Found model '{sdf_model.name}' in SDF resource")
 
-    # === To be updated ===
+    # TODO: Comment to be updated
     # Jaxsim supports only models compatible with URDF, i.e. those having all links
     # directly attached to their parent joint without additional roto-translations.
     # Furthermore, the following switch also post-processes frames such that their
     # pose is expressed wrt the parent link they are rigidly attached to.
-    sdf_model.switch_frame_convention(frame_convention=rod.FrameConvention.Sdf)
+
+    # TODO: find a way to handle SDF models with loops
+    # sdf_model.switch_frame_convention(frame_convention=rod.FrameConvention.Sdf)
 
     # Log type of base link.
     logging.debug(
