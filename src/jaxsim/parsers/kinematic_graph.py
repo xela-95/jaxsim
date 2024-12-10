@@ -119,7 +119,7 @@ class KinematicGraph(Sequence[LinkDescription]):
         # Here we assume the model being fixed-base, therefore the base link will
         # have index 0. We will deal with the floating base in a later stage.
         for index, link in enumerate(self):
-            link.mutable(validate=False).index = index
+            link.index = index
 
         # Get the names of the links, frames, and joints.
         link_names = [l.name for l in self]
@@ -138,7 +138,7 @@ class KinematicGraph(Sequence[LinkDescription]):
 
         # Assign the frame index following the name-based indexing.
         # We assume the model being fixed-base, therefore the first frame will
-        # have last_link_idx + 1.
+        # have index equal to last_link_idx + 1.
         for index, frame in enumerate(self.frames):
             with frame.mutable_context(mutability=Mutability.MUTABLE_NO_VALIDATION):
                 frame.index = int(index + len(self.link_names()))
@@ -146,9 +146,17 @@ class KinematicGraph(Sequence[LinkDescription]):
         # Number joints so that their index matches their child link index.
         # Therefore, the first joint has index 1.
         links_dict = {l.name: l for l in iter(self)}
+
+        # Use a set to keep track of visited joints to handle loops
+        visited_joints_names = set()
+
         for joint in self.joints:
-            with joint.mutable_context(mutability=Mutability.MUTABLE_NO_VALIDATION):
-                joint.index = links_dict[joint.child.name].index
+            if joint.name in visited_joints_names:
+                continue
+
+            joint.index = links_dict[joint.child.name].index
+
+            visited_joints_names.add(joint.name)
 
         # Check that joint indices are unique.
         assert len([j.index for j in self.joints]) == len(
@@ -250,9 +258,7 @@ class KinematicGraph(Sequence[LinkDescription]):
         """
 
         # Create a dictionary that maps the link name to the link, for easy retrieval.
-        links_dict: dict[str, LinkDescription] = {
-            l.name: l.mutable(validate=False) for l in links
-        }
+        links_dict: dict[str, LinkDescription] = {l.name: l for l in links}
 
         # Create an empty list of frames if not provided.
         frames = frames if frames is not None else []
@@ -294,8 +300,7 @@ class KinematicGraph(Sequence[LinkDescription]):
 
             # Assign link's children and make sure they are unique.
             if child_link.name not in {l.name for l in parent_link.children}:
-                with parent_link.mutable_context(Mutability.MUTABLE_NO_VALIDATION):
-                    parent_link.children = (*parent_link.children, child_link)
+                parent_link.children = (*parent_link.children, child_link)
 
         # Collect all the links of the kinematic graph.
         all_links_in_graph = list(
@@ -356,7 +361,7 @@ class KinematicGraph(Sequence[LinkDescription]):
             logging.debug(msg=msg.format(frame.name))
 
         return (
-            links_dict[root_link_name].mutable(mutable=False),
+            links_dict[root_link_name],
             list(set(joints) - set(removed_joints)),
             all_frames_in_graph,
             unconnected_links,
