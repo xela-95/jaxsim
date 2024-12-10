@@ -7,7 +7,6 @@ import jax_dataclasses
 import numpy as np
 
 import jaxsim.typing as jtp
-from jaxsim.utils import JaxsimDataclass, Mutability
 
 from .link import LinkDescription
 
@@ -41,8 +40,8 @@ class JointGenericAxis:
         return hash(self) == hash(other)
 
 
-@jax_dataclasses.pytree_dataclass(eq=False, unsafe_hash=False)
-class JointDescription(JaxsimDataclass):
+@dataclasses.dataclass
+class JointDescription:
     """
     In-memory description of a robot link.
 
@@ -63,12 +62,12 @@ class JointDescription(JaxsimDataclass):
 
     """
 
-    name: jax_dataclasses.Static[str]
+    name: str
     axis: jtp.Vector
     pose: jtp.Matrix
-    jtype: jax_dataclasses.Static[jtp.IntLike]
-    child: LinkDescription = dataclasses.dataclass(repr=False)
-    parent: LinkDescription = dataclasses.dataclass(repr=False)
+    jtype: jtp.IntLike
+    child: LinkDescription
+    parent: LinkDescription
 
     index: jtp.IntLike | None = None
 
@@ -88,12 +87,8 @@ class JointDescription(JaxsimDataclass):
     def __post_init__(self) -> None:
 
         if self.axis is not None:
-
-            with self.mutable_context(
-                mutability=Mutability.MUTABLE, restore_after_exception=False
-            ):
-                norm_of_axis = np.linalg.norm(self.axis)
-                self.axis = self.axis / norm_of_axis
+            norm_of_axis = np.linalg.norm(self.axis)
+            self.axis = self.axis / norm_of_axis
 
     def __eq__(self, other: JointDescription) -> bool:
 
