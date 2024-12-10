@@ -3,17 +3,14 @@ from __future__ import annotations
 import dataclasses
 
 import jax.numpy as jnp
-import jax_dataclasses
 import numpy as np
-from jax_dataclasses import Static
 
 import jaxsim.typing as jtp
 from jaxsim.math import Adjoint
-from jaxsim.utils import JaxsimDataclass
 
 
-@jax_dataclasses.pytree_dataclass(eq=False, unsafe_hash=False)
-class LinkDescription(JaxsimDataclass):
+@dataclasses.dataclass
+class LinkDescription:
     """
     In-memory description of a robot link.
 
@@ -27,14 +24,14 @@ class LinkDescription(JaxsimDataclass):
         children: The children links.
     """
 
-    name: Static[str]
+    name: str
     mass: float = dataclasses.field(repr=False)
     inertia: jtp.Matrix = dataclasses.field(repr=False)
     index: int | None = None
     parent: LinkDescription | None = dataclasses.field(default=None, repr=False)
     pose: jtp.Matrix = dataclasses.field(default_factory=lambda: jnp.eye(4), repr=False)
 
-    children: Static[tuple[LinkDescription]] = dataclasses.field(
+    children: tuple[LinkDescription] = dataclasses.field(
         default_factory=list, repr=False
     )
 
@@ -49,7 +46,7 @@ class LinkDescription(JaxsimDataclass):
                 HashedNumpyArray.hash_of_array(self.inertia),
                 hash(int(self.index)) if self.index is not None else 0,
                 HashedNumpyArray.hash_of_array(self.pose),
-                hash(tuple(self.children)),
+                hash(tuple(map(lambda leaf: leaf.name, self.children))),
                 # Here only using the name to prevent circular recursion:
                 hash(self.parent.name) if self.parent is not None else 0,
             )
