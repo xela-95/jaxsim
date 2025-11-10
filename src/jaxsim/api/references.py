@@ -528,7 +528,10 @@ class JaxSimModelReferences(js.common.ModelDataWithVelocityRepresentation):
 
         # Sum the forces on the parent links.
         mask = parent_link_idxs[:, jnp.newaxis] == jnp.arange(model.number_of_links())
-        W_f_L = mask.T @ W_f_F
+        W_f_L_all = mask.T @ W_f_F
+
+        # Select only the forces corresponding to the parent links to match link_names
+        W_f_L = W_f_L_all[parent_link_idxs, :]
 
         with self.switch_velocity_representation(
             velocity_representation=VelRepr.Inertial
